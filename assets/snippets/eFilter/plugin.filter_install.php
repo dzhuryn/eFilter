@@ -1,9 +1,9 @@
 <?php
-echo '<br>';
-echo '<br>';
-echo '<br>';
-echo '<br>';
-echo '<br>';
+//echo '<br>';
+//echo '<br>';
+//echo '<br>';
+//echo '<br>';
+//echo '<br>';
 $M = $modx->getFullTableName('site_modules');
 $MD = $modx->getFullTableName('site_module_depobj');
 $S = $modx->getFullTableName('site_snippets');
