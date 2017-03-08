@@ -1,10 +1,10 @@
  /**
- * tovarParams
+ * tovarparams
  *
- * tovarParams
+ * tovarparams
  *
  * @category        Filters
- * @name            tovarParams
+ * @name            tovarparams
  * @internal        @caption Параметры товара
  * @internal        @input_type custom_tv
  * @internal        @type custom_tv
