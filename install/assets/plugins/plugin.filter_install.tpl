@@ -13,5 +13,5 @@
  * @internal    @modx_category Filters
  */
 
-require MODX_BASE_PATH . 'assets/snippets/eFilter/plugin.filter_install.php';
+require (MODX_BASE_PATH . 'assets/snippets/eFilter/plugin.filter_install.php)';
 
