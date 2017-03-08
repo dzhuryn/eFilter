@@ -36,7 +36,7 @@ if(!empty($tvId)){
 
     $moduleProperties = $modx->db->getValue($modx->db->select('properties',$M,'name="eLists"'));
  $resp = json_decode($moduleProperties,true);
-    if(empty($resp)){
+
 
     $properties = '{
   "param_tv_id": [
@@ -104,7 +104,7 @@ if(!empty($tvId)){
   ]
 }';
     $fields['properties']=$properties;
-    }
+
 
 }
 $modx->db->update( $fields, $M, 'id = "' . $moduleId . '"' );
