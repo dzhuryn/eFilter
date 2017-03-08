@@ -61,8 +61,8 @@ if(!empty($tvId)){
     {
       "label": "ID шаблонов товара",
       "type": "string",
-      "value": "",
-      "default": "",
+      "value": 3,
+      "default": 3,
       "desc": ""
     }
   ],
@@ -70,8 +70,8 @@ if(!empty($tvId)){
     {
       "label": "ID категории параметров",
       "type": "string",
-      "value": "",
-      "default": "",
+      "value": 1,
+      "default": 1,
       "desc": ""
     }
   ],
@@ -173,7 +173,7 @@ foreach ($plugins as $plugin){
 $pluginId  = $modx->db->getValue($modx->db->select('id',$P,'name="filter_install"'));
 
 if(!empty($pluginId)){
-  //  $modx->db->delete($P, "id = $pluginId");
+   $modx->db->delete($P, "id = $pluginId");
 }
 
 //$e = &$modx->event;
