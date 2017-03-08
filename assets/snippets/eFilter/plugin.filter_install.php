@@ -6,11 +6,11 @@
 //ini_set('display_startup_errors', 1);
 //
 
-echo '<br>';
-echo '<br>';
-echo '<br>';
-echo '<br>';
-
+//echo '<br>';
+//echo '<br>';
+//echo '<br>';
+//echo '<br>';
+//
 
 $M = $modx->getFullTableName('site_modules');
 $MD = $modx->getFullTableName('site_module_depobj');
