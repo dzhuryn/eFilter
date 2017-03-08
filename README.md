@@ -29,10 +29,15 @@
 
 
 3. Отредактировать параметры настройки модуля:
-product_templates_id ID шаблонов товара 
-param_cat_id ID категории параметров 
-exclude_tvs_from_list Не включать ТВ в параметры при выводе 
+
+product_templates_id ID шаблонов товара
+
+param_cat_id ID категории параметров
+
+exclude_tvs_from_list Не включать ТВ в параметры при выводе
+
 tovarChunkName Имя чанка вывода товара
+
 
 
 ####param_tv_id 
