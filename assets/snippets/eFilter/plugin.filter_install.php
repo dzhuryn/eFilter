@@ -24,7 +24,7 @@ $T = $modx->getFullTableName('site_tmplvars');
 
 
 //поиск и обновление модуля
-$tvId  = $modx->db->getValue($modx->db->select('id',$T,'name="tovarParams"'));
+$tvId  = $modx->db->getValue($modx->db->select('id',$T,'name="tovarparams"'));
 $value  = $modx->db->getValue($modx->db->select('id',$M,'name="eLists"'));
 $moduleGuid  = $modx->db->getValue($modx->db->select('guid',$M,'name="eLists"'));
 $moduleId =  $value;
