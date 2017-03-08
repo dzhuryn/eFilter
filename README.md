@@ -23,21 +23,12 @@
 - сниппет DocInfo
 
 ### установка
-1. установить необходимые компоненты (модуль, плагин, сниппеты). Также скопировать конфигурацию для multiTV (\assets\tvs\multitv\configs\tovarparams.config.inc)
-2. создать специальный TV с именем tovarparams, описание - Параметры товара, тип ввода - CustomInput, возможные значения @INCLUDE assets/tvs/multitv/multitv.customtv.php и присвоить этот tv всем шаблонам-категориям товара
-3. создать шаблон для вывода товара
-4. Включить 'общие' параметры в настройках модуля и добавить зависимости
-  Plugins
-tovarParams
 
-  Snippets
-eFilter
-eFilterResult
-multiParams
-tovarParams
+1. создать шаблон для вывода товара
 
 
-5. Отредактировать параметры настройки модуля  - &param_tv_id=ID TV параметров товара;string; &product_templates_id=ID шаблонов товара;string; &param_cat_id=ID категории параметров;string; &exclude_tvs_from_list=Не включать ТВ в параметры при выводе;string; &tovarChunkName=Имя чанка вывода товара;string;
+
+2. Отредактировать параметры настройки модуля  - &param_tv_id=ID TV параметров товара;string; &product_templates_id=ID шаблонов товара;string; &param_cat_id=ID категории параметров;string; &exclude_tvs_from_list=Не включать ТВ в параметры при выводе;string; &tovarChunkName=Имя чанка вывода товара;string;
 где
 &param_tv_id - id tv в котором размещается вызов multiTV для настройки параметров товара (созданный в пункте 2)
 &product_templates_id=ID шаблонов товара  - они общие для всех видов товаров (может быть несколько через запятую)
