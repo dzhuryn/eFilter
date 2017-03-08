@@ -33,72 +33,76 @@ $fields = [
     'enable_sharedparams'=>1,
 ];
 if(!empty($tvId)){
-    $properties = '{
-  "param_tv_id": [
-    {
-      "label": "ID TV параметров товара",
-      "type": "string",
-      "value": '.$tvId.',
-      "default": '.$tvId.',
-      "desc": ""
-    }
-  ],
-  "param_tv_id_simple": [
-    {
-      "label": "ID TV параметров товара (простой фильтр)",
-      "type": "string",
-      "value": "",
-      "default": "",
-      "desc": ""
-    }
-  ],
-  "product_templates_id": [
-    {
-      "label": "ID шаблонов товара",
-      "type": "string",
-      "value": "",
-      "default": "",
-      "desc": ""
-    }
-  ],
-  "param_cat_id": [
-    {
-      "label": "ID категории параметров",
-      "type": "string",
-      "value": "",
-      "default": "",
-      "desc": ""
-    }
-  ],
-  "exclude_tvs_from_list": [
-    {
-      "label": "Не включать ТВ в параметры при выводе",
-      "type": "string",
-      "value": "",
-      "default": "",
-      "desc": ""
-    }
-  ],
-  "tovarChunkName": [
-    {
-      "label": "Имя чанка вывода товара",
-      "type": "string",
-      "value": "",
-      "default": "",
-      "desc": ""
-    }
-  ],
-  "pattern_folder": [
-    {
-      "label": "Папка паттернов",
-      "type": "string",
-      "value": "assets/images/pattern/",
-      "default": "assets/images/pattern/",
-      "desc": ""
-    }
-  ]
-}';
-    $fields['properties']=$properties;
+
+    $moduleProperties = $modx->db->getValue($modx->db->select('properties',$M,'name="eLists"'));
+ var_dump(json_decode($moduleProperties,true));
+
+//    $properties = '{
+//  "param_tv_id": [
+//    {
+//      "label": "ID TV параметров товара",
+//      "type": "string",
+//      "value": '.$tvId.',
+//      "default": '.$tvId.',
+//      "desc": ""
+//    }
+//  ],
+//  "param_tv_id_simple": [
+//    {
+//      "label": "ID TV параметров товара (простой фильтр)",
+//      "type": "string",
+//      "value": "",
+//      "default": "",
+//      "desc": ""
+//    }
+//  ],
+//  "product_templates_id": [
+//    {
+//      "label": "ID шаблонов товара",
+//      "type": "string",
+//      "value": "",
+//      "default": "",
+//      "desc": ""
+//    }
+//  ],
+//  "param_cat_id": [
+//    {
+//      "label": "ID категории параметров",
+//      "type": "string",
+//      "value": "",
+//      "default": "",
+//      "desc": ""
+//    }
+//  ],
+//  "exclude_tvs_from_list": [
+//    {
+//      "label": "Не включать ТВ в параметры при выводе",
+//      "type": "string",
+//      "value": "",
+//      "default": "",
+//      "desc": ""
+//    }
+//  ],
+//  "tovarChunkName": [
+//    {
+//      "label": "Имя чанка вывода товара",
+//      "type": "string",
+//      "value": "",
+//      "default": "",
+//      "desc": ""
+//    }
+//  ],
+//  "pattern_folder": [
+//    {
+//      "label": "Папка паттернов",
+//      "type": "string",
+//      "value": "assets/images/pattern/",
+//      "default": "assets/images/pattern/",
+//      "desc": ""
+//    }
+//  ]
+//}';
+//    $fields['properties']=$properties;
 }
 $modx->db->update( $fields, $M, 'id = "' . $moduleId . '"' );
 
@@ -166,7 +170,7 @@ foreach ($plugins as $plugin){
 $pluginId  = $modx->db->getValue($modx->db->select('id',$P,'name="filter_install"'));
 
 if(!empty($pluginId)){
-    $modx->db->delete($P, "id = $pluginId");
+  //  $modx->db->delete($P, "id = $pluginId");
 }
 
 //$e = &$modx->event;
