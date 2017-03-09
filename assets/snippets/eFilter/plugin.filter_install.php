@@ -32,10 +32,7 @@ $moduleId =  $value;
 $fields = [
     'enable_sharedparams'=>1,
 ];
-if(!empty($tvId)){
 
-    $moduleProperties = $modx->db->getValue($modx->db->select('properties',$M,'name="eLists"'));
- $resp = json_decode($moduleProperties,true);
 
 
     $properties = '{
@@ -106,7 +103,7 @@ if(!empty($tvId)){
     $fields['properties']=$properties;
 
 
-}
+ 
 $modx->db->update( $fields, $M, 'id = "' . $moduleId . '"' );
 
 $snippets = [
