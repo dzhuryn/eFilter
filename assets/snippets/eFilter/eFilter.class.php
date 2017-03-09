@@ -100,7 +100,7 @@ public function getFilterParam ($param_tv_name)
         $filter_param = json_decode($tv_config, true);
     } else {
         $param_tv_val = $this->modx->runSnippet("DocInfo", array('docid'=>$this->docid, 'tv'=>'1', 'field'=>$param_tv_name));
-        if ($param_tv_val != '' && $param_tv_val != '{"fieldValue":[{"param_id":""}],"fieldSettings":{"autoincrement":1}}') {//если задано для категории, ее и берем
+        if ($param_tv_val != '' && $param_tv_val != '[]' && $param_tv_val != '{"fieldValue":[{"param_id":""}],"fieldSettings":{"autoincrement":1}}') {//если задано для категории, ее и берем
             $filter_param = json_decode($param_tv_val, true);
         } else {//если не задано, идем к родителю
             $filter_param = $this->_getParentParam ($this->docid, $param_tv_name);
