@@ -33,6 +33,6 @@
 	<body>
 
 
-	<a href="[+moduleurl+]" class="btn">Обновить</a>
+
 		<div class="sectionBody">
 			<div id="modulePane" class="dynamic-tab-pane-control tab-pane">

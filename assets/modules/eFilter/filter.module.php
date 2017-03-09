@@ -1,24 +1,8 @@
 <?php
-
-/*
-&eFormOnMailSent=`survar`
-<?php
-if (!function_exists('survar')) {
-  function survar(&$fields){
-    global $modx;
-    $table = $modx->getFullTableName( 'survey_variants' );  
-    $fields = array(
-      'formid' => $fields['formid'],
-      'content'=> json_encode($fields, JSON_UNESCAPED_UNICODE),
-      'createdon' => date("Y-m-d H:i:s"),
-      'res' => '1'
-    );
-    $modx->db->insert( $fields, $table); 
-    return true;    
-  }  
+if(empty($_SESSION['mgrShortname'])){
+    echo 'get out';
+    return ;
 }
-*/
-
 
 //создаем модуль и вставляем строку: include_once(MODX_BASE_PATH.'assets/modules/survar/survar.module.php');
 if (IN_MANAGER_MODE != "true" || empty($modx) || !($modx instanceof DocumentParser)) {

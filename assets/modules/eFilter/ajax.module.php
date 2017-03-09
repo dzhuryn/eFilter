@@ -19,6 +19,12 @@ $modx = new DocumentParser;
 $modx->db->connect();
 $modx->getSettings();
 
+
+if(empty($_SESSION['mgrShortname'])){
+    echo 'get out';
+    return ;
+}
+
 $M = $modx->getFullTableName('site_modules');
 $R = $modx->getFullTableName('site_content');
 $T = $modx->getFullTableName('site_tmplvars');
