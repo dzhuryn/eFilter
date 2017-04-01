@@ -47,11 +47,13 @@ if ($type == 'tree-data') {
     $conn = mysql_connect($database_server, $database_user, $database_password);  // creates a connection
     mysql_select_db($dbase);  // selects a database
     $data = new TreeDataConnector($conn, "MySQL");
-    ob_start();
-    $data->render_table($R, "id", "pagetitle", "pagetitle", "parent", "value");
-    $data = ob_get_clean();
-    $xml = simplexml_load_string($data);
-    echo $xml->asXML();
+     $rule = ['template',$template,'IN'];
+    $data->get_request()->set_filter('template','4');
+//    ob_start();
+    $data->render_table($R, "id", "pagetitle", "pagetitle", "parent",$rule);
+//    $data = ob_get_clean();
+//    $xml = simplexml_load_string($data);
+   // echo $xml->asXML();
 }
 if ($type == 'get-form') {
     $id = intval($_GET['id']);
