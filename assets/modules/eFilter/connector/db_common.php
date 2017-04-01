@@ -66,6 +66,9 @@ class DataRequestConfig{
 		for ($i=0; $i < sizeof($this->sort_by); $i++)
 			$str.=$this->sort_by[$i]["name"]."=".$this->sort_by[$i]["direction"].";";
 		$str.="\nRelation:{$this->relation}";
+
+
+
 		return $str;
 	}
 
@@ -182,10 +185,13 @@ class DataRequestConfig{
 			operation for filtering, optional , LIKE by default
 	*/
 	public function set_filter($field,$value=false,$operation=false){
+
 		if ($value === false)
 			array_push($this->filters,$field);
 		else
 			array_push($this->filters,array("name"=>$field,"value"=>$value,"operation"=>$operation));
+echo '<pre><br>';
+        var_dump($this->filters);
 	}
 	
 	/*! sets list of used fields
@@ -202,6 +208,7 @@ class DataRequestConfig{
 			name of source table
 	*/
 	public function set_source($value){
+
 		if (is_string($value))
 			$value = trim($value);
 		$this->source = $value;
@@ -254,6 +261,8 @@ class DataRequestConfig{
 		}
 
 	  	$table_data = preg_split("/[ \n\t]+where/i",$data[1],2);
+
+
 	  	/*
 		  		if sql code contains group_by we will place all sql query in the FROM 
 		  		it will not allow to use any filtering against the query
@@ -737,7 +746,8 @@ abstract class DBDataWrapper extends DataWrapper{
 			$select=$this->config->db_names_list($this);
 			$select = implode(",",$select);
 		}
-		
+//		var_dump($source->get_filters());
+
 		$where=$this->build_where($source->get_filters(),$source->get_relation());
 		$sort=$this->build_order($source->get_sort_by());
 			
@@ -789,16 +799,23 @@ abstract class DBDataWrapper extends DataWrapper{
 			sql string with filtering rules
 	*/
 	protected function build_where($rules,$relation=false){
+
+//	    var_dump($rules);
 		$sql=array();
 		for ($i=0; $i < sizeof($rules); $i++)
 			if (is_string($rules[$i]))
 				array_push($sql,"(".$rules[$i].")");
 			else
 				if ($rules[$i]["value"]!=""){
-					if (!$rules[$i]["operation"])
-						array_push($sql,$this->escape_name($rules[$i]["name"])." LIKE '%".$this->escape($rules[$i]["value"])."%'");
-					else
-						array_push($sql,$this->escape_name($rules[$i]["name"])." ".$rules[$i]["operation"]." '".$this->escape($rules[$i]["value"])."'");
+					if (!$rules[$i]["operation"]){
+                        array_push($sql,$this->escape_name($rules[$i]["name"])." LIKE '%".$this->escape($rules[$i]["value"])."%'");
+                    }
+                    else if($rules[$i]["operation"]=='IN'){
+                        array_push($sql,$this->escape_name($rules[$i]["name"])." IN ( ".$this->escape($rules[$i]["value"]).")");
+                    }
+					else{
+                        array_push($sql,$this->escape_name($rules[$i]["name"])." ".$rules[$i]["operation"]." '".$this->escape($rules[$i]["value"])."'");
+                    }
 				}
 
 		if ($relation !== false && $relation !== ""){
@@ -808,6 +825,8 @@ abstract class DBDataWrapper extends DataWrapper{
 
 			array_push($sql,$relsql);
 		}
+//		echo implode(" AND ",$sql);
+//        die();
 		return implode(" AND ",$sql);
 	}	
 	/*! convert sorting rules to sql string
