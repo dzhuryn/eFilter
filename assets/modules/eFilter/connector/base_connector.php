@@ -406,12 +406,14 @@ class Connector {
 		@param relation_id
 			name of field used to define relations for hierarchical data organization, optional
 	*/
-	public function render_table($table,$id="",$fields=false,$extra=false,$relation_id=false){
+	public function render_table($table,$id="",$fields=false,$extra=false,$relation_id=false,$rule){
 
 		$this->configure($table,$id,$fields,$extra,$relation_id);
+        $this->request->set_filter($rule[0],$rule[1],$rule[2]);
 		return $this->render();
 	}
-	public function configure($table,$id="",$fields=false,$extra=false,$relation_id=false){
+        public function configure($table,$id="",$fields=false,$extra=false,$relation_id=false,$template=false){
+
         if ($fields === false){
             //auto-config
             $info = $this->sql->fields_list($table);
@@ -419,7 +421,11 @@ class Connector {
             if ($info["key"])
                 $id = $info["key"];
         }
+//        die();
+//            var_dump($rule);
+//            echo 33;
 		$this->config->init($id,$fields,$extra,$relation_id);
+
 		if (strpos(trim($table), " ")!==false)
 			$this->request->parse_sql($table);
 		else
