@@ -1,23 +1,7 @@
 <?php
-include_once(dirname(__FILE__) . "/../../cache/siteManager.php");
-require_once(dirname(__FILE__) . '/../../../' . MGR_DIR . '/includes/protect.inc.php');
-
-
-define('MODX_MANAGER_PATH', "../../../" . MGR_DIR . "/");
-require_once(MODX_MANAGER_PATH . 'includes/config.inc.php');
-
-require_once(MODX_MANAGER_PATH . '/includes/protect.inc.php');
-define('MODX_API_MODE', true);
-require_once(MODX_MANAGER_PATH . '/includes/document.parser.class.inc.php');
-
-require_once $_SERVER['DOCUMENT_ROOT'].'/assets/lib/MODxApi/modResource.php';
-session_name($site_sessionname);
-session_id($_COOKIE[session_name()]);
-session_start();
-
-$modx = new DocumentParser;
+define("MODX_API_MODE", true);
+include_once($_SERVER['DOCUMENT_ROOT'] . "/index.php");
 $modx->db->connect();
-$modx->getSettings();
 
 
 if(empty($_SESSION['mgrShortname'])){
@@ -40,20 +24,39 @@ if (empty($resp['product_templates_id'])) {
 
 }
 
-
 $type = $_GET['type'];
 if ($type == 'tree-data') {
-    require_once("connector/data_connector.php");
-    $conn = mysql_connect($database_server, $database_user, $database_password);  // creates a connection
-    mysql_select_db($dbase);  // selects a database
-    $data = new TreeDataConnector($conn, "MySQL");
-     $rule = ['template',$template,'IN'];
-    $data->get_request()->set_filter('template','4');
-//    ob_start();
-    $data->render_table($R, "id", "pagetitle", "pagetitle", "parent",$rule);
-//    $data = ob_get_clean();
-//    $xml = simplexml_load_string($data);
-   // echo $xml->asXML();
+    $resp = $modx->runSnippet('DocLister',
+        [
+            'parents'=>0,
+            'depth'=>4,
+            'showParent'=>1,
+            'api'=>1,
+            'selectFields'=>'id,pagetitle,parent',
+            'orderBy'=>'parent asc'
+        ]
+    );
+    $resp = json_decode($resp,true);
+    function buildTree(array &$elements, $parentId = 0)
+    {
+        $branch = array();
+
+        foreach ($elements as $element) {
+
+            if ($element['parent'] == $parentId) {
+                $children = buildTree($elements, $element['id']);
+                if ($children) {
+                    $element['data'] = $children;
+                }
+                $branch[] = $element;
+                unset($elements[$element['id']]);
+            }
+        }
+        return $branch;
+    }
+        $resp = buildTree($resp);
+    echo json_encode($resp);
+
 }
 if ($type == 'get-form') {
     $id = intval($_GET['id']);
