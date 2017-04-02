@@ -49,7 +49,7 @@
                     gravity:0.3,
                     minHeight:200,
                     select:true,
-                    datatype:"xml",
+                    datatype:"json",
                     template:"{common.icon()} {common.folder()} #pagetitle#",
                     url:ajax+"?type=tree-data"
                 },
