@@ -33,7 +33,8 @@ if ($type == 'tree-data') {
             'showParent'=>1,
             'api'=>1,
             'selectFields'=>'id,pagetitle,parent',
-            'orderBy'=>'parent asc'
+            'orderBy'=>'parent asc',
+            'addWhereList'=>'template in ('.$template.')'
         ]
     );
     $resp = json_decode($resp,true);
