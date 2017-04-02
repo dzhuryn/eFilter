@@ -98,6 +98,15 @@ $fields = [
       "default": "assets/images/pattern/",
       "desc": ""
     }
+  ],
+    "category_template": [
+    {
+      "label": "Список шаблонов категорий",
+      "type": "string",
+      "value": "1",
+      "default": "1",
+      "desc": ""
+    }
   ]
 }';
     $fields['properties']=$properties;
