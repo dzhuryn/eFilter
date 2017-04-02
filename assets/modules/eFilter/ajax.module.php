@@ -1,6 +1,7 @@
 <?php
 define("MODX_API_MODE", true);
 include_once($_SERVER['DOCUMENT_ROOT'] . "/index.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/lib/MODxAPI/modResource.php");
 $modx->db->connect();
 
 
