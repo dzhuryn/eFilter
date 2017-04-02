@@ -19,7 +19,7 @@ $resp = json_decode($moduleProperties, true);
 if (empty($resp['product_templates_id'])) {
     return '';
 } else {
-    $template = $resp['product_templates_id'][0]['value'];
+    $template = $resp['category_template'][0]['value'];
     $tvCategory = $resp['param_cat_id'][0]['value'];
 
 }
