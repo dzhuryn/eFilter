@@ -218,7 +218,7 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                     $filter_values_full[$tv_id] = $sort_tmp;
                     unset($sort_tmp);
                 } else {
-                    uksort($filter_values_full[$tv_id], create_function('$a,$b', 'return is_numeric($a) && is_numeric($b) ? ($a-$b) : strcasecmp(strtolower($a), strtolower($b));'));
+                    uksort($filter_values_full[$tv_id], create_function('$a,$b', 'if(is_numeric($a) && is_numeric($b)){if($a - $b < 0)return -1;elseif($a - $b == 0)return 0;else return 1;}else{return strcasecmp(strtolower($a), strtolower($b));}'));
                 }
                 $wrapper = '';
                 $count = '';
