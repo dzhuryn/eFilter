@@ -1,4 +1,6 @@
 <?php
+
+
 if(empty($_SESSION['mgrShortname'])){
     echo 'get out';
     return ;

@@ -65,8 +65,12 @@ public $nosort_tv_id = array();
 //тип фильтра для DocLister. По умолчанию - tvd
 public $dl_filter_type;
 
+/* @var DocumentParser */
+public $modx;
+
 public function __construct($modx, $params)
 {
+
     $this->modx = $modx;
     $this->params = $params;
     $this->param_tv_id = $this->params['param_tv_id'];
@@ -255,12 +259,14 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        
-                        $output .= $this->parseTpl(
+
+                        $tvOuter = $this->parseTpl(
                             array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
                             array($tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
+                        $output .= $tvOuter;
+
                         break;
                         
                     case '2': //селекты
@@ -294,11 +300,12 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        $output .= $this->parseTpl(
+                        $tvOuter = $this->parseTpl(
                             array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
                             array($tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
+                        $output .= $tvOuter;
                         break;
                         
                     case '3': //диапазон
@@ -328,11 +335,12 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             array($tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
                             $tplRow
                         );
-                        $output .= $this->parseTpl(
+                        $tvOuter = $this->parseTpl(
                             array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
                             array($tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
+                        $output .= $tvOuter;
                         break;
 
                     case '4': //radio
@@ -366,11 +374,12 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        $output .= $this->parseTpl(
+                        $tvOuter = $this->parseTpl(
                             array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
                             array($tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
+                        $output .= $tvOuter;
                         break;
 
                     case '5': //мультиселекты
@@ -404,11 +413,12 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        $output .= $this->parseTpl(
+                        $tvOuter = $this->parseTpl(
                             array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
                             array($tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
+                        $output .= $tvOuter;
                         break;
 
                     case '6': //слайдер-диапазон
@@ -452,11 +462,12 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             array($tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
                             $tplRow
                         );
-                        $output .= $this->parseTpl(
+                        $tvOuter = $this->parseTpl(
                             array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
                             array($tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
+                        $output .= $tvOuter;
                         break;
 
                     case '7'://Цвет
@@ -492,12 +503,13 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        
-                        $output .= $this->parseTpl(
+
+                        $tvOuter = $this->parseTpl(
                             array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
                             array($tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
+                        $output .= $tvOuter;
                         break;
                     
                     case '8'://Паттерны
@@ -533,12 +545,13 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        
-                        $output .= $this->parseTpl(
+
+                        $tvOuter = $this->parseTpl(
                             array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
                             array($tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
+                        $output .= $tvOuter;
                         break;
                     
                     default: //по умолчанию - чекбоксы
@@ -572,13 +585,19 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        $output .= $this->parseTpl(
+
+                        $tvOuter = $this->parseTpl(
                             array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
                             array($tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
+                        $output .= $tvOuter;
                         break;
                 }
+                //гереация
+                $this->modx->setPlaceholder($tv_id.'_tv_inner',$wrapper);
+                $this->modx->setPlaceholder($tv_id.'_tv_wrap',$tvOuter);
+
 
             }
         }
