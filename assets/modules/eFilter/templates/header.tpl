@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/style.css" /> 
+		<link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/style.css" />
 		<link type="text/css" rel="stylesheet" href="../assets/modules/eFilter/libs/webix/css/compact.css">
 
 

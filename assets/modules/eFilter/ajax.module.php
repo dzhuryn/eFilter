@@ -74,6 +74,24 @@ if ($type == 'get-form') {
     $tvsList = [];
 
 
+
+    //получаем все тв поля
+    $tvCategory = $modx->db->escape($tvCategory);
+    $tvs = $modx->db->makeArray($modx->db->select('id,name,caption', $T, 'category in (' . $tvCategory . ')'));
+    $tvArray = [];
+
+    foreach ($tvs as $tv) {
+        $tvArray[] = [
+            'name' => $id.'tv'. $tv['id'],
+            'view' => 'checkbox',
+            'id' => $tv['id'],
+            'labelWidth'=>'120',
+            'label' => $tv['caption'],
+        ];
+
+    }
+
+
     $tableTr = '';
     if(is_array($docTVS)){
         foreach ($docTVS as $e){
@@ -81,6 +99,27 @@ if ($type == 'get-form') {
 
             $selected = [];
             $selected[$e['fltr_type']]='selected';
+
+            if($e['hide'] == '1'){
+                $selected['hide']='checked';
+            }
+
+            $selectList = '';
+            foreach ($tvArray as $tv) {
+                $sel = '';
+                if($tv['id']==$e['param_id']){
+                    $sel = 'selected';
+                }
+
+
+                $selectList .= '<option '.$sel.' value="2">'.$tv['label'].'</option>';
+
+            }
+            $selectList = '<select class="form-control" name="tv_type" size="1">
+                        <option value=""></option>
+                        '.$selectList.'
+                        </select>';
+
             $filterType = '<select class="form-control" name="tv_type" size="1">
                         <option value=""></option>
                         <option '.$selected[1].' value="1">Чекбокс</option>
@@ -100,29 +139,21 @@ if ($type == 'get-form') {
             <input type="hidden" name="tv_id" value="'.$e['param_id'].'" />
         </td>
         <td><input name="caption" value="'.$e['fltr_name'].'" class="form-control"/></td>
+        <td>'.$selectList.'</td>
+        <td style="text-align: center"><a class="remove-item">x</a></td>
         <td>'.$filterType.'</td>
         <td><input name="category" value="" class="form-control" placeholder="Категория.." value="'.$e['cat_name'].'"/></td>
- 
+        <td><div class="checkbox">
+        <label>
+          <input '.$selected['hide'].' name="hide" value="1" type="checkbox"> Скрыть
+        </label>
+      </div></td>
+        
 </tr>';
 
         }
     }
 
-    //получаем все тв поля
-    $tvCategory = $modx->db->escape($tvCategory);
-    $tvs = $modx->db->makeArray($modx->db->select('id,name,caption', $T, 'category in (' . $tvCategory . ')'));
-    $tvArray = [];
-
-    foreach ($tvs as $tv) {
-        $tvArray[] = [
-            'name' => $id.'tv'. $tv['id'],
-            'view' => 'checkbox',
-            'id' => $tv['id'],
-            'labelWidth'=>'120',
-            'label' => $tv['caption'],
-        ];
-
-    }
 
     $boxes = '';
     foreach($tvArray as $tv){
@@ -177,6 +208,7 @@ if($type=='save'){
     $tvs = [];
 
 
+
     if(is_array($data)){
         foreach ($data as $e){
             $tvs[] = [
@@ -188,6 +220,7 @@ if($type=='save'){
                 'fltr_name'=>$e['1'],
                 'fltr_many'=>1,
                 'param_choose'=>1,
+                'hide'=>$e['4'],
             ];
         }
     }

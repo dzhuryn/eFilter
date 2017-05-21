@@ -81,6 +81,7 @@ public function __construct($modx, $params)
     $this->product_templates_array = explode(',', $this->product_templates_id);
     $this->docid = isset($this->params['docid']) ? $this->params['docid'] : $this->modx->documentIdentifier;
     $this->cfg = (isset($this->params['cfg']) && $this->params['cfg'] != '') ? $this->params['cfg'] : 'default';
+    $this->delete_cfg = (isset($this->params['delete_cfg']) && $this->params['delete_cfg'] != '') ? $this->params['delete_cfg'] : 'default';
     $this->params['remove_disabled'] = isset($this->params['remove_disabled']) && $this->params['remove_disabled'] != '0' ? '1' : '0';
     $this->fp = isset($_GET) ? $_GET : array();
     $this->zero = isset($this->params['hide_zero']) ? '' : '0';
@@ -88,6 +89,85 @@ public function __construct($modx, $params)
     $this->nosort_tv_id = isset($this->params['nosort_tv_id']) ? explode(',', $this->params['nosort_tv_id']) : array();
     $this->dl_filter_type = isset($this->params['dl_filter_type']) ? $this->params['dl_filter_type'] : 'tvd';
     $this->prepareGetParams($this->fp);
+}
+
+
+public function deleteActiveFilters(){
+
+    //подключаем файл конфигурации с шаблонами вывода формы удаление фильтров
+    if (is_file(dirname(__FILE__).'/config/config.delete.'.$this->cfg.'.php')) {
+        include(dirname(__FILE__).'/config/config.delete.'.$this->cfg.'.php');
+    } else {
+        include(dirname(__FILE__).'/config/config.delete.default.php');
+    }
+
+
+
+    $data = $_REQUEST;
+    unset($data['q']);
+    $items = '';
+    if(is_array($_GET['f'])){
+
+        foreach ($_GET['f'] as $tvId => $filter) {
+
+            if(isset($filter['min']) && isset($filter['max'])){
+
+                $newData = $data;
+                unset($newData['f'][$tvId]['min']);
+                unset($newData['f'][$tvId]['max']);
+                $url = $_GET['q'].'?'. http_build_query($newData);
+
+                $inner = $this->parseTpl(
+                    ['[+min+]','[+max+]','[+link+]'],
+                    [$filter['min'],$filter['max'],$url],
+                    $tplSliderInner
+                );
+
+                $items .= $this->parseTpl(
+                    ['[+wrapper+]'],
+                    [$inner],
+                    $tplSliderOwner
+                );
+
+            }
+            else{
+                $inner = '';
+                foreach ($filter as $key=> $item) {
+                    if(empty($item)){continue;}
+
+                    $newData = $data;
+                    unset($newData['f'][$tvId][$key]);
+                    $url = $this->modx->makeUrl($this->modx->documentIdentifier).'?'. http_build_query($newData);
+
+                    $inner .= $this->parseTpl(
+                        ['[+value+]','[+link+]'],
+                        [$item,$url],
+                        $tplDeleteFilterInner
+                    );
+                }
+                if(!empty($inner)){
+                    $items .= $this->parseTpl(
+                        ['[+wrapper+]'],
+                        [$inner],
+                        $tplDeleteFilterOwner
+                    );
+                }
+            }
+
+        }
+    }
+
+
+    $output = $this->parseTpl(
+        ['[+wrapper+]'],
+        [$items],
+        $tplDeleteFilterForm
+    );
+
+
+
+
+    return $output;
 }
 
 public function getParamTvName($tv_id = '')
@@ -330,6 +410,8 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                         $maxvalcurr = isset($this->fp[$tv_id]['max']) && (int)$this->fp[$tv_id]['max'] != 0 && (int)$this->fp[$tv_id]['max'] <= (int)$maxvalcurr  ? (int)$this->fp[$tv_id]['max'] : $maxvalcurr;
                         $minval = isset($this->fp[$tv_id]['min']) && (int)$this->fp[$tv_id]['min'] != 0 ? (int)$this->fp[$tv_id]['min'] : $minval;
                         $maxval = isset($this->fp[$tv_id]['max']) && (int)$this->fp[$tv_id]['max'] != 0 ? (int)$this->fp[$tv_id]['max'] : $maxval;
+
+                      
                         $wrapper .= $this->parseTpl(
                             array('[+tv_id+]', '[+minval+]', '[+maxval+]', '[+minvalcurr+]', '[+maxvalcurr+]'),
                             array($tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
@@ -457,6 +539,16 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                         $maxvalcurr = isset($this->fp[$tv_id]['max']) && (int)$this->fp[$tv_id]['max'] != 0 && (int)$this->fp[$tv_id]['max'] <= (int)$maxvalcurr  ? (int)$this->fp[$tv_id]['max'] : $maxvalcurr;*/
                         $minval = isset($this->fp[$tv_id]['min']) && (int)$this->fp[$tv_id]['min'] != 0 ? (int)$this->fp[$tv_id]['min'] : $minval;
                         $maxval = isset($this->fp[$tv_id]['max']) && (int)$this->fp[$tv_id]['max'] != 0 ? (int)$this->fp[$tv_id]['max'] : $maxval;
+
+
+                        if(empty($minval) && !empty($minvalcurr)){
+                            $minval = $minvalcurr;
+                        }
+                        if(empty($maxval) && !empty($maxvalcurr)){
+                            $maxval = $maxvalcurr;
+                        }
+                        
+
                         $wrapper .= $this->parseTpl(
                             array('[+tv_id+]', '[+minval+]', '[+maxval+]', '[+minvalcurr+]', '[+maxvalcurr+]'),
                             array($tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
