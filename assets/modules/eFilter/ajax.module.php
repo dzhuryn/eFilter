@@ -180,9 +180,44 @@ if ($type == 'get-form') {
 }
 
 if($type=='get-elem'){
+
     $id = intval(str_replace('tv','',$_GET['id']));
+
+    //получаем все тв поля
+    $tvCategory = $modx->db->escape($tvCategory);
+    $tvs = $modx->db->makeArray($modx->db->select('id,name,caption', $T, 'category in (' . $tvCategory . ')'));
+    $tvArray = [];
+
+    foreach ($tvs as $tv) {
+        $tvArray[] = [
+            'name' => $id.'tv'. $tv['id'],
+            'view' => 'checkbox',
+            'id' => $tv['id'],
+            'labelWidth'=>'120',
+            'label' => $tv['caption'],
+        ];
+
+    }
     $tvs = $modx->db->makeArray($modx->db->select('*', $T, 'id =' . $id ));
     $tv = $tvs[0];
+
+
+
+    $selectList = '';
+    foreach ($tvArray as $elem) {
+        $sel = '';
+        if($elem['id']==$tv['id']){
+            $sel = 'selected';
+        }
+
+
+        $selectList .= '<option '.$sel.' value="2">'.$elem['label'].'</option>';
+
+    }
+    $selectList = '<select class="form-control" name="tv_type" size="1">
+                        <option value=""></option>
+                        '.$selectList.'
+                        </select>';
 
     $filterType = '<select class="form-control" name="tv_type" size="1"><option value="" ></option><option selected="selected" value="1">Чекбокс</option><option value="2">Список</option><option value="3">Диапазон</option><option value="4">Флажок</option><option value="5">Мультиселект</option><option value="6">Слайдер</option><option value="7">Цвет</option><option value="8">Паттерн</option></select>';
 
@@ -193,9 +228,15 @@ if($type=='get-elem'){
             <input type="hidden" name="tv_id" value="'.$tv['id'].'" />
         </td>
         <td><input name="caption" value="'.$tv['caption'].'" class="form-control"/></td>
+                <td>'.$selectList.'</td>
+        <td style="text-align: center"><a class="remove-item">x</a></td>
         <td>'.$filterType.'</td>
         <td><input name="category" value="" class="form-control" placeholder="Категория.."/></td>
- 
+ <td><div class="checkbox">
+        <label>
+          <input '.$selected['hide'].' name="hide" value="1" type="checkbox"> Скрыть
+        </label>
+      </div></td>
 </tr>';
 
     echo $output;
