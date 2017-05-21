@@ -220,7 +220,7 @@ if($type=='save'){
                 'fltr_name'=>$e['1'],
                 'fltr_many'=>1,
                 'param_choose'=>1,
-                'hide'=>$e['4'],
+                'hide'=>isset($e['4'])?$e['4']:'0',
             ];
         }
     }
