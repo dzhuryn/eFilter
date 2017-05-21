@@ -63,6 +63,7 @@
         var array = [];
         $('#filter-table tr').each(function (ind,elem) {
 
+
             array.push([
                     $(elem).find('[name="tv_id"]').val(),
                     $(elem).find('[name="caption"]').val(),
@@ -107,6 +108,7 @@
             $('#tv-list').html(data['boxes'])
             $('#filter-table tbody').html(data['table'])
             //$("[type='checkbox']").bootstrapSwitch();
+            $('tbody').sortable();
         })
     });
     $('body').on('change','.tv-box',function () {

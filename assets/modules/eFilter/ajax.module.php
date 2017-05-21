@@ -98,6 +98,7 @@ if ($type == 'get-form') {
             $tvsList[]=$e['param_id'];
 
             $selected = [];
+//            echo $e['fltr_type'].'<br>';
             $selected[$e['fltr_type']]='selected';
 
             if($e['hide'] == '1'){
@@ -112,10 +113,10 @@ if ($type == 'get-form') {
                 }
 
 
-                $selectList .= '<option '.$sel.' value="2">'.$tv['label'].'</option>';
+                $selectList .= '<option '.$sel.' value="'.$tv['id'].'">'.$tv['label'].'</option>';
 
             }
-            $selectList = '<select class="form-control" name="tv_type" size="1">
+            $selectList = '<select class="form-control" name="tv_id" size="1">
                         <option value=""></option>
                         '.$selectList.'
                         </select>';
@@ -136,13 +137,13 @@ if ($type == 'get-form') {
             $output .= '<tr id="tv'.$e['param_id'].'">
         <td>
             <img src="/assets/modules/eFilter/image/arrow_updown.png"/>
-            <input type="hidden" name="tv_id" value="'.$e['param_id'].'" />
+          
         </td>
         <td><input name="caption" value="'.$e['fltr_name'].'" class="form-control"/></td>
         <td>'.$selectList.'</td>
         <td style="text-align: center"><a class="remove-item">x</a></td>
         <td>'.$filterType.'</td>
-        <td><input name="category" value="" class="form-control" placeholder="Категория.." value="'.$e['cat_name'].'"/></td>
+        <td><input name="category"  class="form-control" placeholder="Категория.." value="'.$e['cat_name'].'"/></td>
         <td><div class="checkbox">
         <label>
           <input '.$selected['hide'].' name="hide" value="1" type="checkbox"> Скрыть
@@ -211,10 +212,10 @@ if($type=='get-elem'){
         }
 
 
-        $selectList .= '<option '.$sel.' value="2">'.$elem['label'].'</option>';
+        $selectList .= '<option '.$sel.' value="'.$elem['id'].'">'.$elem['label'].'</option>';
 
     }
-    $selectList = '<select class="form-control" name="tv_type" size="1">
+    $selectList = '<select class="form-control" name="tv_id" size="1">
                         <option value=""></option>
                         '.$selectList.'
                         </select>';
@@ -225,7 +226,7 @@ if($type=='get-elem'){
     $output .= '<tr id="tv'.$tv['id'].'">
         <td>
             <img src="/assets/modules/eFilter/image/arrow_updown.png"/>
-            <input type="hidden" name="tv_id" value="'.$tv['id'].'" />
+ 
         </td>
         <td><input name="caption" value="'.$tv['caption'].'" class="form-control"/></td>
                 <td>'.$selectList.'</td>
@@ -265,6 +266,8 @@ if($type=='save'){
             ];
         }
     }
+
+
 
 
     $doc = new modResource($modx);
