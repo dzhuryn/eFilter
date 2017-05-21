@@ -12,7 +12,10 @@ $eFltr->modx->regClientStartupScript('assets/snippets/eFilter/html/js/jquery.ui.
 if (isset($params['ajax']) && $params['ajax'] == '1') {
     $eFltr->modx->regClientStartupScript('<script>var eFiltrAjax = "1";</script>', array('plaintext' => true));
 }
+//var_dump($params);
+//die();
 if (!isset($params['autoSubmit']) || $params['autoSubmit'] == '1') {
+
     $eFltr->modx->regClientStartupScript('<script>var eFiltrAutoSubmit = "1";</script>', array('plaintext' => true));
 }
 $eFltr->modx->regClientStartupScript('assets/snippets/eFilter/html/js/eFilter.js');
@@ -59,7 +62,7 @@ if (!empty($eFltr->list_tv_ids)) {
 //он используется для поиска подходящих id ресурсов как без фильтров (категория, вложенность, опубликованность, удаленность и т.п.)
 //так и с использованием фильтра
 //на выходе получаем список id подходящих ресурсов через запятую
-$DLparams = array('parents' => $eFltr->docid, /*'tpl' => '@CODE [+id+],', */'depth' => '3', 'addWhereList' => ((isset($eFltr->params['addWhereList']) && !empty($eFltr->params['addWhereList'])) ? $eFltr->params['addWhereList'] . ' AND ' : '') . 'c.template IN(' . $eFltr->params['product_templates_id'] . ')', 'makeUrl' => '0');
+$DLparams = array('filters',isset($eFltr->params['filters'])?$eFltr->params['filters']:'','parents' => $eFltr->docid, /*'tpl' => '@CODE [+id+],', */'depth' => '3', 'addWhereList' => ((isset($eFltr->params['addWhereList']) && !empty($eFltr->params['addWhereList'])) ? $eFltr->params['addWhereList'] . ' AND ' : '') . 'c.template IN(' . $eFltr->params['product_templates_id'] . ')', 'makeUrl' => '0');
 $DLparamsAPI = array('JSONformat' => 'new', 'api' => 'id', 'selectFields' => 'c.id');
 $DLparamsAll = array_merge($DLparams, $DLparamsAPI);
 //это список всех id товаров данной категории, дальше будем вычленять ненужные :)
@@ -109,7 +112,11 @@ $eFltr->setPlaceholders (
 		
 		//перечень tv для вывода в список товаров
 		//нужно для вывода названий параметра рядом с его значением
-		"eFilter_tv_names" => $eFltr->list_tv_captions
+		"eFilter_tv_names" => $eFltr->list_tv_captions,
+
+
+		//форма удаленые установленных фильтров
+		"eFilter_form_delete" => $eFltr->deleteActiveFilters(),
     )
 );
 

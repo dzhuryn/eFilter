@@ -157,6 +157,7 @@ public function deleteActiveFilters(){
         }
     }
 
+    
 
     $output = $this->parseTpl(
         ['[+wrapper+]'],
@@ -341,16 +342,16 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             }
                             if ($this->params['remove_disabled'] == '0' || $disabled == '') {
                                 $wrapper .= $k != '' ? $this->parseTpl(
-                                    array('[+hide+]','[+tv_id+]', '[+value+]', '[+name+]', '[+selected+]', '[+disabled+]', '[+count+]'),
-                                    array($hide,$tv_id, $k, $tv_val_name, $selected, $disabled, $count),
+                                    array('[+tv_id+]', '[+value+]', '[+name+]', '[+selected+]', '[+disabled+]', '[+count+]'),
+                                    array($tv_id, $k, $tv_val_name, $selected, $disabled, $count),
                                     $tplRow
                                 ) : '';
                             }
                         }
 
                         $tvOuter = $this->parseTpl(
-                            array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($tv_id, $filters[$tv_id]['name'], $wrapper),
+                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
                         $output .= $tvOuter;
@@ -382,15 +383,15 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             }
                             if ($this->params['remove_disabled'] == '0' || $disabled == '') {
                                 $wrapper .= $k != '' ? $this->parseTpl(
-                                    array('[+hide+]','[+tv_id+]', '[+value+]', '[+name+]', '[+selected+]', '[+disabled+]', '[+count+]'),
-                                    array($hide,$tv_id, $k, $tv_val_name, $selected, $disabled, $count),
+                                    array('[+tv_id+]', '[+value+]', '[+name+]', '[+selected+]', '[+disabled+]', '[+count+]'),
+                                    array($tv_id, $k, $tv_val_name, $selected, $disabled, $count),
                                     $tplRow
                                 ) : '';
                             }
                         }
                         $tvOuter = $this->parseTpl(
-                            array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($tv_id, $filters[$tv_id]['name'], $wrapper),
+                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
                         $output .= $tvOuter;
@@ -421,13 +422,13 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
 
                       
                         $wrapper .= $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+minval+]', '[+maxval+]', '[+minvalcurr+]', '[+maxvalcurr+]'),
-                            array($hide,$tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
+                            array('[+tv_id+]', '[+minval+]', '[+maxval+]', '[+minvalcurr+]', '[+maxvalcurr+]'),
+                            array($tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
                             $tplRow
                         );
                         $tvOuter = $this->parseTpl(
-                            array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($tv_id, $filters[$tv_id]['name'], $wrapper),
+                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
                         $output .= $tvOuter;
@@ -458,15 +459,15 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             }
                             if ($this->params['remove_disabled'] == '0' || $disabled == '') {
                                 $wrapper .= $k != '' ? $this->parseTpl(
-                                    array('[+hide+]','[+tv_id+]', '[+value+]', '[+name+]', '[+selected+]', '[+disabled+]', '[+count+]'),
-                                    array($hide,$tv_id, $k, $tv_val_name, $selected, $disabled, $count),
+                                    array('[+tv_id+]', '[+value+]', '[+name+]', '[+selected+]', '[+disabled+]', '[+count+]'),
+                                    array($tv_id, $k, $tv_val_name, $selected, $disabled, $count),
                                     $tplRow
                                 ) : '';
                             }
                         }
                         $tvOuter = $this->parseTpl(
-                            array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($tv_id, $filters[$tv_id]['name'], $wrapper),
+                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
                         $output .= $tvOuter;
@@ -558,13 +559,13 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                         
 
                         $wrapper .= $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+minval+]', '[+maxval+]', '[+minvalcurr+]', '[+maxvalcurr+]'),
-                            array($hide,$tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
+                            array('[+tv_id+]', '[+minval+]', '[+maxval+]', '[+minvalcurr+]', '[+maxvalcurr+]'),
+                            array($tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
                             $tplRow
                         );
                         $tvOuter = $this->parseTpl(
-                            array('[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($tv_id, $filters[$tv_id]['name'], $wrapper),
+                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
                             $tplOuter
                         );
                         $output .= $tvOuter;
