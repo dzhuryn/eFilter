@@ -1,11 +1,4 @@
 <?php
-
-
-if(empty($_SESSION['mgrShortname'])){
-    echo 'get out';
-    return ;
-}
-
 //создаем модуль и вставляем строку: include_once(MODX_BASE_PATH.'assets/modules/survar/survar.module.php');
 if (IN_MANAGER_MODE != "true" || empty($modx) || !($modx instanceof DocumentParser)) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
@@ -26,8 +19,16 @@ $action = isset($_GET['action']) ? $_GET['action'] : 'home';
 
 $data = array ('moduleurl'=>$moduleurl, 'manager_theme'=>$modx->config['manager_theme'], 'session'=>$_SESSION, 'action'=>$action , 'selected'=>array($action=>'selected')); 
 
-//выполнение действий 
+//выполнение действий
+
+//die();
 switch ($action) {
+
+    case 'ajax':
+        require_once 'ajax.module.php';
+        die();
+        break;
+
   case 'home':
     $template = '@CODE:'.file_get_contents(dirname(__FILE__).'/templates/home.tpl');
     $outTpl = $tpl->parseChunk($template,$data);

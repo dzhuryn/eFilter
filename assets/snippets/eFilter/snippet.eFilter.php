@@ -1,24 +1,33 @@
 <?php
 if(!defined('MODX_BASE_PATH')){die('What are you doing? Get out of here!');}
 $output = "";
-
+$js = isset($js)?$js:1;
+$css = isset($css)?$css:1;
+$sliderCssJs = isset($sliderCssJs)?$sliderCssJs:1;
 include_once('eFilter.class.php');
 $eFltr = new eFilter($modx, $params);
 
-$eFltr->modx->regClientCSS('assets/snippets/eFilter/html/css/eFilter.css');
-$eFltr->modx->regClientCSS('assets/snippets/eFilter/html/css/slider.css');
-$eFltr->modx->regClientStartupScript('assets/snippets/eFilter/html/js/jquery-ui.min.js');
-$eFltr->modx->regClientStartupScript('assets/snippets/eFilter/html/js/jquery.ui.touch-punch.min.js');
+if($css == 1){
+    $eFltr->modx->regClientCSS('assets/snippets/eFilter/html/css/eFilter.css');
+}
+if($sliderCssJs == 1){
+    $eFltr->modx->regClientCSS('assets/snippets/eFilter/html/css/slider.css');
+    $eFltr->modx->regClientScript('assets/snippets/eFilter/html/js/jquery-ui.min.js');
+    $eFltr->modx->regClientScript('assets/snippets/eFilter/html/js/jquery.ui.touch-punch.min.js');
+}
+
 if (isset($params['ajax']) && $params['ajax'] == '1') {
+    $modx->setPlaceholder('eFilter_ajax',1);
     $eFltr->modx->regClientStartupScript('<script>var eFiltrAjax = "1";</script>', array('plaintext' => true));
 }
 //var_dump($params);
 //die();
-if (!isset($params['autoSubmit']) || $params['autoSubmit'] == '1') {
-
+if (!isset($params['autoSubmit']) || $params['autoSubmit'] == '1' ) {
     $eFltr->modx->regClientStartupScript('<script>var eFiltrAutoSubmit = "1";</script>', array('plaintext' => true));
 }
-$eFltr->modx->regClientStartupScript('assets/snippets/eFilter/html/js/eFilter.js');
+if($js == 1){
+    $eFltr->modx->regClientScript('assets/snippets/eFilter/html/js/eFilter.js');
+}
 
 //получаем значение параметров для категории товара в виде массива
 //если у ресурса не задано - смотрим родителя, если у родителя нет- смотрим дедушку
@@ -119,4 +128,3 @@ $eFltr->setPlaceholders (
 		"eFilter_form_delete" => $eFltr->deleteActiveFilters(),
     )
 );
-

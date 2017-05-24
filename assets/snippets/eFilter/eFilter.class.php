@@ -95,8 +95,8 @@ public function __construct($modx, $params)
 public function deleteActiveFilters(){
 
     //подключаем файл конфигурации с шаблонами вывода формы удаление фильтров
-    if (is_file(dirname(__FILE__).'/config/config.delete.'.$this->cfg.'.php')) {
-        include(dirname(__FILE__).'/config/config.delete.'.$this->cfg.'.php');
+    if (is_file(dirname(__FILE__).'/config/config.delete.'.$this->delete_cfg.'.php')) {
+        include(dirname(__FILE__).'/config/config.delete.'.$this->delete_cfg.'.php');
     } else {
         include(dirname(__FILE__).'/config/config.delete.default.php');
     }
@@ -110,7 +110,19 @@ public function deleteActiveFilters(){
 
         foreach ($_GET['f'] as $tvId => $filter) {
 
+            $tvName = $this->filters[$tvId]['tv_name'];
+            $fltr_name = $this->filters[$tvId]['name'];
+
+
+            //удаление групы
+            $newData = $data;
+            unset($newData['f'][$tvId]);
+            $groupUnlink = $this->modx->makeUrl($this->modx->documentIdentifier).'?'. http_build_query($newData);
+            $this->modx->setPlaceholder('delete_group_'.$tvId,$groupUnlink);
+
             if(isset($filter['min']) && isset($filter['max'])){
+                $tplRow = isset(${'tplSliderInner_'.$tvName})?${'tplSliderInner_'.$tvName}:$tplSliderInner;
+                $tplOuter = isset(${'tplSliderOwner_'.$tvName})?${'tplSliderOwner_'.$tvName}:$tplSliderOwner;
 
                 $newData = $data;
                 unset($newData['f'][$tvId]['min']);
@@ -120,17 +132,29 @@ public function deleteActiveFilters(){
                 $inner = $this->parseTpl(
                     ['[+min+]','[+max+]','[+link+]'],
                     [$filter['min'],$filter['max'],$url],
-                    $tplSliderInner
+                    $tplRow
                 );
 
                 $items .= $this->parseTpl(
-                    ['[+wrapper+]'],
-                    [$inner],
-                    $tplSliderOwner
+                    [
+                        '[+wrapper+]',
+                        '[+delete_group+]',
+                        '[+name+]',
+                    ],
+                    [
+                        $inner,
+                        $groupUnlink,
+                        $fltr_name
+                    ],
+                    $tplOuter
                 );
+
 
             }
             else{
+                $tplRow = isset(${'tplDeleteFilterInner_'.$tvName})?${'tplDeleteFilterInner_'.$tvName}:$tplDeleteFilterInner;
+                $tplOuter = isset(${'tplDeleteFilterOwner_'.$tvName})?${'tplDeleteFilterOwner_'.$tvName}:$tplDeleteFilterOwner;
+
                 $inner = '';
                 foreach ($filter as $key=> $item) {
                     if(empty($item)){continue;}
@@ -142,18 +166,25 @@ public function deleteActiveFilters(){
                     $inner .= $this->parseTpl(
                         ['[+value+]','[+link+]'],
                         [$item,$url],
-                        $tplDeleteFilterInner
+                        $tplRow
                     );
                 }
                 if(!empty($inner)){
                     $items .= $this->parseTpl(
-                        ['[+wrapper+]'],
-                        [$inner],
-                        $tplDeleteFilterOwner
+                        [
+                            '[+wrapper+]',
+                            '[+delete_group+]',
+                            '[+name+]',
+                        ],
+                        [
+                            $inner,
+                            $groupUnlink,
+                            $fltr_name
+                        ],
+                        $tplOuter
                     );
                 }
             }
-
         }
     }
 
@@ -255,6 +286,19 @@ public function makeFilterArrays()
             $this->list_tv_ids[] = $v['param_id'];
         }
     }
+
+
+    if(!empty($this->list_tv_ids)){
+        $sql = "SELECT `name`,`id` FROM " . $this->modx->getFullTableName('site_tmplvars') . " WHERE id IN( ".implode(',',$this->list_tv_ids)." )";
+        $resp =  $this->modx->db->makeArray($this->modx->db->query($sql));
+
+        if(is_array($resp)){
+            foreach ($resp as $el) {
+
+                $this->filters[$el['id']]['tv_name'] = $el['name'];
+           }
+        }
+    }
 }
 
 public function getTVNames ($tv_ids = '', $field = 'name')
@@ -297,7 +341,8 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
         $tv_elements = $this->getDefaultTVValues($tmp);
         foreach ($tmp as $tv_id => $tmp2) {
 
-            $hide = $tmp2['hide'];
+            $hide = $filters[$tv_id]['hide'];
+            $tvName = $filters[$tv_id]['tv_name'];
 
 
             if (isset($filter_values_full[$tv_id])) {
@@ -318,8 +363,8 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                 //||Чекбокс==1||Список==2||Диапазон==3||Флажок==4||Мультиселект==5
                 switch ($filters[$tv_id]['type']) {
                     case '1'://чекбоксы
-                        $tplRow = $tplRowCheckbox;
-                        $tplOuter = $tplOuterCheckbox;
+                        $tplRow = isset(${'tplRowCheckbox_'.$tvName})?${'tplRowCheckbox_'.$tvName}:$tplRowCheckbox;
+                        $tplOuter = isset(${'tplOuterCheckbox_'.$tvName})?${'tplOuterCheckbox_'.$tvName}:$tplOuterCheckbox;
                         foreach ($filter_values_full[$tv_id] as $k => $v) {
                             $tv_val_name = isset($tv_elements[$tv_id][$k]) ? $tv_elements[$tv_id][$k] : $k;
                             $selected = '  ';
@@ -349,18 +394,20 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             }
                         }
 
-                        $tvOuter = $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
-                            $tplOuter
-                        );
-                        $output .= $tvOuter;
+                        if(!empty($wrapper)){
+                            $tvOuter = $this->parseTpl(
+                                array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                                array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
+                                $tplOuter
+                            );
+                            $output .= $tvOuter;
+                        }
 
                         break;
                         
                     case '2': //селекты
-                        $tplRow = $tplRowSelect;
-                        $tplOuter = $tplOuterSelect;
+                        $tplRow = isset(${'tplRowSelect_'.$tvName})?${'tplRowSelect_'.$tvName}:$tplRowSelect;
+                        $tplOuter = isset(${'tplOuterSelect_'.$tvName})?${'tplOuterSelect_'.$tvName}:$tplOuterSelect;
                         foreach ($filter_values_full[$tv_id] as $k => $v) {
                             $tv_val_name = isset($tv_elements[$tv_id][$k]) ? $tv_elements[$tv_id][$k] : $k;
                             $selected = '  ';
@@ -389,12 +436,14 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        $tvOuter = $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
-                            $tplOuter
-                        );
-                        $output .= $tvOuter;
+                        if(!empty($wrapper)){
+                            $tvOuter = $this->parseTpl(
+                                array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                                array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
+                                $tplOuter
+                            );
+                            $output .= $tvOuter;
+                        }
                         break;
                         
                     case '3': //диапазон
@@ -412,9 +461,10 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             $minvalcurr = $minmax['min'];
                             $maxvalcurr = $minmax['max'];
                         }
-                        
-                        $tplRow = $tplRowInterval;
-                        $tplOuter = $tplOuterInterval;
+
+                        $tplRow = isset(${'tplRowInterval_'.$tvName})?${'tplRowInterval_'.$tvName}:$tplRowInterval;
+                        $tplOuter = isset(${'tplOuterInterval_'.$tvName})?${'tplOuterInterval_'.$tvName}:$tplOuterInterval;
+
                         $minvalcurr = isset($this->fp[$tv_id]['min']) && (int)$this->fp[$tv_id]['min'] != 0 && (int)$this->fp[$tv_id]['min'] >= (int)$minvalcurr ? (int)$this->fp[$tv_id]['min'] : $minvalcurr;
                         $maxvalcurr = isset($this->fp[$tv_id]['max']) && (int)$this->fp[$tv_id]['max'] != 0 && (int)$this->fp[$tv_id]['max'] <= (int)$maxvalcurr  ? (int)$this->fp[$tv_id]['max'] : $maxvalcurr;
                         $minval = isset($this->fp[$tv_id]['min']) && (int)$this->fp[$tv_id]['min'] != 0 ? (int)$this->fp[$tv_id]['min'] : $minval;
@@ -426,17 +476,19 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             array($tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
                             $tplRow
                         );
-                        $tvOuter = $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
-                            $tplOuter
-                        );
-                        $output .= $tvOuter;
+                        if(!empty($wrapper)){
+                            $tvOuter = $this->parseTpl(
+                                array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                                array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
+                                $tplOuter
+                            );
+                            $output .= $tvOuter;
+                        }
                         break;
 
                     case '4': //radio
-                        $tplRow = $tplRowRadio;
-                        $tplOuter = $tplOuterRadio;
+                        $tplRow = isset(${'tplRowRadio_'.$tvName})?${'tplRowRadio_'.$tvName}:$tplRowRadio;
+                        $tplOuter = isset(${'tplOuterRadio_'.$tvName})?${'tplOuterRadio_'.$tvName}:$tplOuterRadio;
                         foreach ($filter_values_full[$tv_id] as $k => $v) {
                             $tv_val_name = isset($tv_elements[$tv_id][$k]) ? $tv_elements[$tv_id][$k] : $k;
                             $selected = '  ';
@@ -465,17 +517,19 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        $tvOuter = $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
-                            $tplOuter
-                        );
-                        $output .= $tvOuter;
+                        if(!empty($wrapper)){
+                            $tvOuter = $this->parseTpl(
+                                array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                                array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
+                                $tplOuter
+                            );
+                            $output .= $tvOuter;
+                        }
                         break;
 
                     case '5': //мультиселекты
-                        $tplRow = $tplRowMultySelect;
-                        $tplOuter = $tplOuterMultySelect;
+                        $tplRow = isset(${'tplRowMultySelect_'.$tvName})?${'tplRowMultySelect_'.$tvName}:$tplRowMultySelect;
+                        $tplOuter = isset(${'tplOuterMultySelect_'.$tvName})?${'tplOuterMultySelect_'.$tvName}:$tplOuterMultySelect;
                         foreach ($filter_values_full[$tv_id] as $k => $v) {
                             $tv_val_name = isset($tv_elements[$tv_id][$k]) ? $tv_elements[$tv_id][$k] : $k;
                             $selected = '  ';
@@ -504,12 +558,14 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                                 ) : '';
                             }
                         }
-                        $tvOuter = $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
-                            $tplOuter
-                        );
-                        $output .= $tvOuter;
+                        if(!empty($wrapper)){
+                            $tvOuter = $this->parseTpl(
+                                array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                                array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
+                                $tplOuter
+                            );
+                            $output .= $tvOuter;
+                        }
                         break;
 
                     case '6': //слайдер-диапазон
@@ -541,9 +597,9 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             $minvalcurr = $minvalcurr - 1;
                             $maxvalcurr = $maxvalcurr + 1;
                         }
-                        
-                        $tplRow = $tplRowSlider;
-                        $tplOuter = $tplOuterSlider;
+
+                        $tplRow = isset(${'tplRowSlider_'.$tvName})?${'tplRowSlider_'.$tvName}:$tplRowSlider;
+                        $tplOuter = isset(${'tplOuterSlider_'.$tvName})?${'tplOuterSlider_'.$tvName}:$tplOuterSlider;
                         /*$minvalcurr = isset($this->fp[$tv_id]['min']) && (int)$this->fp[$tv_id]['min'] != 0 && (int)$this->fp[$tv_id]['min'] >= (int)$minvalcurr ? (int)$this->fp[$tv_id]['min'] : $minvalcurr;
                         $maxvalcurr = isset($this->fp[$tv_id]['max']) && (int)$this->fp[$tv_id]['max'] != 0 && (int)$this->fp[$tv_id]['max'] <= (int)$maxvalcurr  ? (int)$this->fp[$tv_id]['max'] : $maxvalcurr;*/
                         $minval = isset($this->fp[$tv_id]['min']) && (int)$this->fp[$tv_id]['min'] != 0 ? (int)$this->fp[$tv_id]['min'] : $minval;
@@ -556,24 +612,27 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                         if(empty($maxval) && !empty($maxvalcurr)){
                             $maxval = $maxvalcurr;
                         }
-                        
+
 
                         $wrapper .= $this->parseTpl(
                             array('[+tv_id+]', '[+minval+]', '[+maxval+]', '[+minvalcurr+]', '[+maxvalcurr+]'),
                             array($tv_id, $minval, $maxval, $minvalcurr, $maxvalcurr),
                             $tplRow
                         );
-                        $tvOuter = $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
-                            $tplOuter
-                        );
-                        $output .= $tvOuter;
+
+                        if(!empty($wrapper)){
+                            $tvOuter = $this->parseTpl(
+                                array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                                array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
+                                $tplOuter
+                            );
+                            $output .= $tvOuter;
+                        }
                         break;
 
                     case '7'://Цвет
-                        $tplRow = $tplRowColors;
-                        $tplOuter = $tplOuterColors;
+                        $tplRow = isset(${'tplRowColors_'.$tvName})?${'tplRowColors_'.$tvName}:$tplRowColors;
+                        $tplOuter = isset(${'tplOuterColors_'.$tvName})?${'tplOuterColors_'.$tvName}:$tplOuterColors;
                         foreach ($filter_values_full[$tv_id] as $k => $v) {
                             $tv_val_name = isset($tv_elements[$tv_id][$k]) ? $tv_elements[$tv_id][$k] : $k;
                             $selected = '  ';
@@ -605,17 +664,19 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             }
                         }
 
-                        $tvOuter = $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
-                            $tplOuter
-                        );
-                        $output .= $tvOuter;
+                        if(!empty($wrapper)){
+                            $tvOuter = $this->parseTpl(
+                                array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                                array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
+                                $tplOuter
+                            );
+                            $output .= $tvOuter;
+                        }
                         break;
                     
                     case '8'://Паттерны
-                        $tplRow = $tplRowPattern;
-                        $tplOuter = $tplOuterPattern;
+                        $tplRow = isset(${'tplRowPattern_'.$tvName})?${'tplRowPattern_'.$tvName}:$tplRowPattern;
+                        $tplOuter = isset(${'tplOuterPattern_'.$tvName})?${'tplOuterPattern_'.$tvName}:$tplOuterPattern;
                         foreach ($filter_values_full[$tv_id] as $k => $v) {
                             $tv_val_name = isset($tv_elements[$tv_id][$k]) ? $tv_elements[$tv_id][$k] : $k;
                             $selected = '  ';
@@ -647,17 +708,19 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             }
                         }
 
-                        $tvOuter = $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
-                            $tplOuter
-                        );
-                        $output .= $tvOuter;
+                        if(!empty($wrapper)){
+                            $tvOuter = $this->parseTpl(
+                                array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                                array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
+                                $tplOuter
+                            );
+                            $output .= $tvOuter;
+                        }
                         break;
                     
                     default: //по умолчанию - чекбоксы
-                        $tplRow = $tplRowCheckbox;
-                        $tplOuter = $tplOuterCheckbox;
+                        $tplRow = isset(${'tplRowCheckbox_'.$tvName})?${'tplRowCheckbox_'.$tvName}:$tplRowCheckbox;
+                        $tplOuter = isset(${'tplOuterCheckbox_'.$tvName})?${'tplOuterCheckbox_'.$tvName}:$tplOuterCheckbox;
                         foreach ($filter_values_full[$tv_id] as $k => $v) {
                             $tv_val_name = isset($tv_elements[$tv_id][$k]) ? $tv_elements[$tv_id][$k] : $k;
                             $selected = '  ';
@@ -687,19 +750,19 @@ public function renderFilterBlock ($filter_cats, $filter_values_full, $filter_va
                             }
                         }
 
-                        $tvOuter = $this->parseTpl(
-                            array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
-                            array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
-                            $tplOuter
-                        );
-                        $output .= $tvOuter;
+                        if(!empty($wrapper)){
+                            $tvOuter = $this->parseTpl(
+                                array('[+hide+]','[+tv_id+]', '[+name+]', '[+wrapper+]'),
+                                array($hide,$tv_id, $filters[$tv_id]['name'], $wrapper),
+                                $tplOuter
+                            );
+                            $output .= $tvOuter;
+                        }
                         break;
                 }
                 //гереация
-                $this->modx->setPlaceholder($tv_id.'_tv_inner',$wrapper);
-                $this->modx->setPlaceholder($tv_id.'_tv_wrap',$tvOuter);
-
-
+                $this->modx->setPlaceholder($tvName.'_tv_inner',$wrapper);
+                $this->modx->setPlaceholder($tvName.'_tv_wrap',$tvOuter);
             }
         }
         $fc++;

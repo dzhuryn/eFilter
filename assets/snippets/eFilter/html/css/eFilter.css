@@ -34,3 +34,13 @@
 #eFiltr_results_wrapper{position:relative;min-height:64px;}
 #eFiltr_results{}
 #eFiltr_results_wrapper .eFiltr_loader{position:absolute;top:10px;left:50%;margin-left:-32px;z-index:10;width:64px;height:64px;background:url(loader.GIF) 0 0 no-repeat;display:none;}
+
+
+
+.fltr_delete_item_wrap{
+    display: inline-block;
+}
+.fltr_delete_item{
+    display: inline-block;
+    margin-left:  5px;
+}

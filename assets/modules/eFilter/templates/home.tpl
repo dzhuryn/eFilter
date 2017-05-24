@@ -1,6 +1,6 @@
 
 
-
+<input type="hidden" id="moduleurl" value="/manager/[+moduleurl+]">
 <div class="row">
     <div class="col-md-3">
         <div id="statuses"></div>
@@ -58,7 +58,8 @@
     });
 
     var category_id ;
-    var ajax = '/assets/modules/eFilter/ajax.module.php';
+    var ajax = $('#moduleurl').val()+"action=ajax&";
+
     $('#save').click(function () {
         var array = [];
         $('#filter-table tr').each(function (ind,elem) {
@@ -73,7 +74,7 @@
             ])
 
         })
-        $.get(ajax+"?type=save&category_id="+category_id,{data:array},
+        $.post(ajax+"type=save&category_id="+category_id,{data:array},
         function () {
             webix.message('Сохраненно')
         })
@@ -94,7 +95,7 @@
                     select:true,
                     datatype:"json",
                     template:"{common.icon()} {common.folder()} #pagetitle#",
-                    url:ajax+"?type=tree-data"
+                    url:ajax+"type=tree-data"
                 },
             ]},
         ]
@@ -103,7 +104,7 @@
 
     $$("mytree").attachEvent("onBeforeSelect", function(newv, oldv){
         category_id = newv;
-        webix.ajax().get(ajax,{type:'get-form',id:newv},function (data) {
+        webix.ajax().post(ajax,{type:'get-form',id:newv},function (data) {
             data = JSON.parse(data)
             $('#tv-list').html(data['boxes'])
             $('#filter-table tbody').html(data['table'])
@@ -114,7 +115,7 @@
     $('body').on('change','.tv-box',function () {
         if($(this).prop('checked')){
 
-            $.get(ajax,{
+            $.post(ajax,{
                 type:'get-elem',
                 id:$(this).attr('id')
             },function (data) {

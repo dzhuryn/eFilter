@@ -1,16 +1,7 @@
 <?php
-define("MODX_API_MODE", true);
-include_once($_SERVER['DOCUMENT_ROOT'] . "/index.php");
-include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/lib/MODxAPI/modResource.php");
+if(!defined('MODX_BASE_PATH')){die('What are you doing? Get out of here!');}
 
-
-$modx = new DocumentParser;
-$modx->getSettings();
-
-if(empty($_SESSION['mgrShortname'])){
-    echo 'get out';
-    return ;
-}
+require_once MODX_BASE_PATH.'assets/lib/MODxAPI/modResource.php';
 
 $M = $modx->getFullTableName('site_modules');
 $R = $modx->getFullTableName('site_content');
@@ -27,7 +18,7 @@ if (empty($resp['product_templates_id'])) {
 
 }
 
-$type = $_GET['type'];
+$type = $_REQUEST['type'];
 if ($type == 'tree-data') {
     $resp = $modx->runSnippet('DocLister',
         [
@@ -63,7 +54,7 @@ if ($type == 'tree-data') {
 
 }
 if ($type == 'get-form') {
-    $id = intval($_GET['id']);
+    $id = intval($_POST['id']);
 
     $doc = new modResource($modx);
     $doc->edit($id);
@@ -182,7 +173,7 @@ if ($type == 'get-form') {
 
 if($type=='get-elem'){
 
-    $id = intval(str_replace('tv','',$_GET['id']));
+    $id = intval(str_replace('tv','',$_REQUEST['id']));
 
     //получаем все тв поля
     $tvCategory = $modx->db->escape($tvCategory);
@@ -245,8 +236,8 @@ if($type=='get-elem'){
 
 }
 if($type=='save'){
-    $data = $_GET['data'];
-    $category_id = intval($_GET['category_id']);
+    $data = $_REQUEST['data'];
+    $category_id = intval($_REQUEST['category_id']);
     $tvs = [];
 
 
