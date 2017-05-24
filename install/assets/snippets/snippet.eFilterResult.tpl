@@ -187,4 +187,3 @@ if($stop!=1){
 $modx->setPlaceholder($prefix.'pages_next',$page + 1);
 }
 return $out;
-
