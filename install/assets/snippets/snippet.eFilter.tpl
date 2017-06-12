@@ -26,4 +26,4 @@
  //это центральный сниппет для фильтрации
  //работает совместно с DocLister, multiTV и DocInfo - они должны быть установлены
 
-require MODX_BASE_PATH . 'assets/snippets/eFilter/snippet.eFilter.php'; 
+require MODX_BASE_PATH . 'assets/snippets/eFilter/snippet.eFilter.php';

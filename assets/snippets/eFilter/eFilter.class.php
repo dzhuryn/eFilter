@@ -92,84 +92,54 @@ public function __construct($modx, $params)
 }
 
 
-public function deleteActiveFilters(){
+    public function deleteActiveFilters(){
 
-    //подключаем файл конфигурации с шаблонами вывода формы удаление фильтров
-    if (is_file(dirname(__FILE__).'/config/config.delete.'.$this->delete_cfg.'.php')) {
-        include(dirname(__FILE__).'/config/config.delete.'.$this->delete_cfg.'.php');
-    } else {
-        include(dirname(__FILE__).'/config/config.delete.default.php');
-    }
-
-
-
-    $data = $_REQUEST;
-    unset($data['q']);
-    $items = '';
-    if(is_array($_GET['f'])){
-
-        foreach ($_GET['f'] as $tvId => $filter) {
-
-            $tvName = $this->filters[$tvId]['tv_name'];
-            $fltr_name = $this->filters[$tvId]['name'];
+        //подключаем файл конфигурации с шаблонами вывода формы удаление фильтров
+        if (is_file(dirname(__FILE__).'/config/config.delete.'.$this->delete_cfg.'.php')) {
+            include(dirname(__FILE__).'/config/config.delete.'.$this->delete_cfg.'.php');
+        } else {
+            include(dirname(__FILE__).'/config/config.delete.default.php');
+        }
 
 
-            //удаление групы
-            $newData = $data;
-            unset($newData['f'][$tvId]);
-            $groupUnlink = $this->modx->makeUrl($this->modx->documentIdentifier).'?'. http_build_query($newData);
-            $this->modx->setPlaceholder('delete_group_'.$tvId,$groupUnlink);
 
-            if(isset($filter['min']) && isset($filter['max'])){
-                $tplRow = isset(${'tplSliderInner_'.$tvName})?${'tplSliderInner_'.$tvName}:$tplSliderInner;
-                $tplOuter = isset(${'tplSliderOwner_'.$tvName})?${'tplSliderOwner_'.$tvName}:$tplSliderOwner;
+        $data = $_REQUEST;
+        unset($data['q']);
+        $items = '';
+        if(is_array($_GET['f'])){
 
+            foreach ($_GET['f'] as $tvId => $filter) {
+
+                $tvName = $this->filters[$tvId]['tv_name'];
+                $fltr_name = $this->filters[$tvId]['name'];
+
+
+                //удаление групы
                 $newData = $data;
-                unset($newData['f'][$tvId]['min']);
-                unset($newData['f'][$tvId]['max']);
-                $url = $_GET['q'].'?'. http_build_query($newData);
+                unset($newData['f'][$tvId]);
 
-                $inner = $this->parseTpl(
-                    ['[+min+]','[+max+]','[+link+]'],
-                    [$filter['min'],$filter['max'],$url],
-                    $tplRow
-                );
+                $tv_elements = $this->getDefaultTVValues([$tvId=>1]);
+//            var_dump($tv_elements);
+//            die();
 
-                $items .= $this->parseTpl(
-                    [
-                        '[+wrapper+]',
-                        '[+delete_group+]',
-                        '[+name+]',
-                    ],
-                    [
-                        $inner,
-                        $groupUnlink,
-                        $fltr_name
-                    ],
-                    $tplOuter
-                );
+                $groupUnlink = $this->modx->makeUrl($this->modx->documentIdentifier).'?'. http_build_query($newData);
+                $this->modx->setPlaceholder('delete_group_'.$tvId,$groupUnlink);
 
-
-            }
-            else{
-                $tplRow = isset(${'tplDeleteFilterInner_'.$tvName})?${'tplDeleteFilterInner_'.$tvName}:$tplDeleteFilterInner;
-                $tplOuter = isset(${'tplDeleteFilterOwner_'.$tvName})?${'tplDeleteFilterOwner_'.$tvName}:$tplDeleteFilterOwner;
-
-                $inner = '';
-                foreach ($filter as $key=> $item) {
-                    if(empty($item)){continue;}
+                if(isset($filter['min']) && isset($filter['max'])){
+                    $tplRow = isset(${'tplSliderInner_'.$tvName})?${'tplSliderInner_'.$tvName}:$tplSliderInner;
+                    $tplOuter = isset(${'tplSliderOwner_'.$tvName})?${'tplSliderOwner_'.$tvName}:$tplSliderOwner;
 
                     $newData = $data;
-                    unset($newData['f'][$tvId][$key]);
-                    $url = $this->modx->makeUrl($this->modx->documentIdentifier).'?'. http_build_query($newData);
+                    unset($newData['f'][$tvId]['min']);
+                    unset($newData['f'][$tvId]['max']);
+                    $url = $_GET['q'].'?'. http_build_query($newData);
 
-                    $inner .= $this->parseTpl(
-                        ['[+value+]','[+link+]'],
-                        [$item,$url],
+                    $inner = $this->parseTpl(
+                        ['[+min+]','[+max+]','[+link+]'],
+                        [$filter['min'],$filter['max'],$url],
                         $tplRow
                     );
-                }
-                if(!empty($inner)){
+
                     $items .= $this->parseTpl(
                         [
                             '[+wrapper+]',
@@ -183,24 +153,63 @@ public function deleteActiveFilters(){
                         ],
                         $tplOuter
                     );
+
+
+                }
+                else{
+                    $tplRow = isset(${'tplDeleteFilterInner_'.$tvName})?${'tplDeleteFilterInner_'.$tvName}:$tplDeleteFilterInner;
+                    $tplOuter = isset(${'tplDeleteFilterOwner_'.$tvName})?${'tplDeleteFilterOwner_'.$tvName}:$tplDeleteFilterOwner;
+
+                    $inner = '';
+                    foreach ($filter as $key=> $item) {
+                        if(empty($item)){continue;}
+
+                        $newData = $data;
+                        unset($newData['f'][$tvId][$key]);
+                        $url = $this->modx->makeUrl($this->modx->documentIdentifier).'?'. http_build_query($newData);
+
+                        $name = '';
+                        if(!empty($tv_elements[$tvId][$item])){
+                            $name = $tv_elements[$tvId][$item];
+                        }
+                        $inner .= $this->parseTpl(
+                            ['[+value+]','[+link+]','[+name+]'],
+                            [$item,$url,$name],
+                            $tplRow
+                        );
+                    }
+                    if(!empty($inner)){
+                        $items .= $this->parseTpl(
+                            [
+                                '[+wrapper+]',
+                                '[+delete_group+]',
+                                '[+name+]',
+                            ],
+                            [
+                                $inner,
+                                $groupUnlink,
+                                $fltr_name
+                            ],
+                            $tplOuter
+                        );
+                    }
                 }
             }
         }
+
+
+
+        $output = $this->parseTpl(
+            ['[+wrapper+]'],
+            [$items],
+            $tplDeleteFilterForm
+        );
+
+
+
+
+        return $output;
     }
-
-    
-
-    $output = $this->parseTpl(
-        ['[+wrapper+]'],
-        [$items],
-        $tplDeleteFilterForm
-    );
-
-
-
-
-    return $output;
-}
 
 public function getParamTvName($tv_id = '')
 {

@@ -18,5 +18,5 @@ $tplSliderInner = '<div class="fltr_delete_item">
 //обертка других фильтров
 $tplDeleteFilterOwner = '<div class="fltr_delete_item_wrap">[+wrapper+] <a href="[+delete_group+]" class="fltr_delete_item_link">Удалить все параметры групы [+name+]</a></div>';
 $tplDeleteFilterInner = '<div class="fltr_delete_item">
-[+value+] <a href="[+link+]" class="fltr_delete_item_link">x</a>
+[+name+] <a href="[+link+]" class="fltr_delete_item_link">x</a>
 </div>';
