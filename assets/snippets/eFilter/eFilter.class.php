@@ -1059,6 +1059,17 @@ public function getDefaultTVValues($array = array())
                 $element = str_replace("\$modx->", "\$this->modx->", $element);
                 $element = eval($element);
             }
+            if (stristr($element, "@SELECT")) {
+                $element = str_replace(['@SELECT','[+PREFIX+]'],['SELECT',$this->modx->db->config['table_prefix']],$element);
+                $resp = $this->modx->db->makeArray($this->modx->db->query($element));
+                $respData = [];
+                foreach ($resp as $el) {
+                    $keys = array_keys($el);
+                    $respData[] = $el[$keys[0]].'=='.$el[$keys[1]];
+                }
+                $element = implode('||',$respData);
+            }
+
             if ($element != '') {
                 $tmp = explode("||", $element);
                 foreach ($tmp as $v) {
