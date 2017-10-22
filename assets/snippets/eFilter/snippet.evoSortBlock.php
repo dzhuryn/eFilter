@@ -171,11 +171,11 @@ $downClass = $currentSortOrder == 'asc'?$sortDirectionActiveClass:'';
 
 
 $up = $modx->parseText($sortDirectionUpTpl,[
-    'class'=>$upClass,
+    'class'=>$sortFieldClass.' '.$upClass,
     'data'=>'data-value="'.$currentSortField.':asc"',
 ]);
 $down = $modx->parseText($sortDirectionDownTpl,[
-    'class'=>$downClass,
+    'class'=>$sortFieldClass.' '.$downClass,
     'data'=>'data-value="'.$currentSortField.':desc"',
 ]);
 $directionOuter = $modx->parseText($sortDirectionTpl,[
