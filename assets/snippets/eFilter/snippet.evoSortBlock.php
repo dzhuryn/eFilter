@@ -34,6 +34,8 @@ if(empty($_SESSION['sortBy'])) $_SESSION['sortBy'] = $sortFieldDefault;
 if(empty($_SESSION['sortOrder'])) $_SESSION['sortOrder'] = $sortOrderDefault;
 
 
+
+
 //поточние значения
 $currentDisplay = $_SESSION['sortDisplay'];
 $currentSortField = $_SESSION['sortBy'];
@@ -42,9 +44,9 @@ $currentSortOrder = $_SESSION['sortOrder'];
 //конфиг
 $displayConfig = isset($displayConfig)?$displayConfig:'20||30||40||все==all';
 $sortConfig = isset($sortConfig)?$sortConfig:'По название==pagetitle||По индексу==menuindex';
-
+$changeSortByClickField = isset($changeSortByClickField)?$changeSortByClickField:0;
 //tpl
-$ownerTpl = isset($ownerTpl)?$ownerTpl:'<div class="[+class+]">[+display.block+][+sort.block+]</div>';
+$ownerTpl = isset($ownerTpl)?$ownerTpl:'<div class="[+class+]">[+display.block+][+sort.block+][+sort.direction+]</div>';
 
 $displayOwnerTpl  = isset($displayOwnerTpl)?$displayOwnerTpl:'<select class="[+class+]">[+wrapper+]</select>';
 $displayRowTpl = isset($displayRowTpl)?$displayRowTpl:'<option value="[+value+]" [+selected+] [+data+] class="[+class+]">[+caption+]</option>';
@@ -52,12 +54,18 @@ $displayRowTpl = isset($displayRowTpl)?$displayRowTpl:'<option value="[+value+]"
 $sortOwnerTpl = isset($sortOwnerTpl)?$sortOwnerTpl:'<ul>[+wrapper+]</ul>';
 $sortRowTpl = isset($sortRowTpl)?$sortRowTpl: '<a class="[+class+]" [+data+] [+selected+] >[+caption+]</a>';
 
+//напрявение
+$sortDirectionTpl  = isset($sortDirectionTpl)?$sortDirectionTpl:'<div>[+up+][+down+]</div>';
+$sortDirectionUpTpl  = isset($sortDirectionUpTpl)?$sortDirectionUpTpl:'<a class="[+class+]" [+data+]>По возрастанию</a>';
+$sortDirectionDownTpl  = isset($sortDirectionDownTpl)?$sortDirectionDownTpl:'<a class="[+class+]" [+data+]>По убиванию</a>';
 
 //class
+$sortFieldClass = isset($sortFieldClass)?$sortFieldClass:'set-sort-field';
 $sortActiveClass = isset($sortActiveClass)?$sortActiveClass:'active';
 $sortUpClass = isset($sortUpClass)?$sortUpClass:'up';
 $sortDownClass = isset($sortDownClass)?$sortDownClass:'down';
 $displayActiveClass = isset($displayActiveClass)?$displayActiveClass:'active';
+$sortDirectionActiveClass  = isset($sortDirectionActiveClass)?$sortDirectionActiveClass:'active';
 
 $displayRow = '';
 $display = explode('||',$displayConfig);
@@ -92,7 +100,6 @@ $data = [
 ];
 $displayOuter = $modx->parseText($displayOwnerTpl,$data);
 
-
 $sortRow = '';
 $sortField = explode('||',$sortConfig);
 if(is_array($sortField)){
@@ -108,12 +115,20 @@ if(is_array($sortField)){
         else{
             $valueOrder = '';
         }
+        $dataValue = $value;
 
 
-        $dataAttr = 'data-value = "'.$value.'"';
+        if(!empty($resp[1])){
+            $dataValue .= ':'.$valueOrder;
+        }
+        else if($changeSortByClickField == 0){
+            $dataValue .= ':'.$valueOrder;
+        }
+        $dataAttr = 'data-value = "'.$dataValue.'"';
+
 
         $selected = '';
-        $class = ' set-sort-field';
+        $class = ' '.$sortFieldClass;
 
         if($value==$currentSortField && empty($valueOrder)){
             $class.=' '.$sortActiveClass;
@@ -132,6 +147,7 @@ if(is_array($sortField)){
         }
         $data = [
             'value'=>$value,
+
             'caption'=>$caption,
             'selected'=>$selected,
             'data'=>$dataAttr,
@@ -142,11 +158,30 @@ if(is_array($sortField)){
 }
 
 $data = [
-    'class'=>' set-sort-field',
+    'class'=>' '.$sortFieldClass,
     'wrapper'=>$sortRow,
 
 ];
 $sortOuter = $modx->parseText($sortOwnerTpl,$data);
+
+
+//блок направления
+$upClass = $currentSortOrder == 'desc'?$sortDirectionActiveClass:'';
+$downClass = $currentSortOrder == 'asc'?$sortDirectionActiveClass:'';
+
+
+$up = $modx->parseText($sortDirectionUpTpl,[
+    'class'=>$upClass,
+    'data'=>'data-value="'.$currentSortField.':asc"',
+]);
+$down = $modx->parseText($sortDirectionDownTpl,[
+    'class'=>$downClass,
+    'data'=>'data-value="'.$currentSortField.':desc"',
+]);
+$directionOuter = $modx->parseText($sortDirectionTpl,[
+    'up'=>$up,
+    'down'=>$down
+]);
 
 $class = 'sort-wrap';
 if($ajax==1){
@@ -155,8 +190,12 @@ if($ajax==1){
 $data = [
     'display.block'=>$displayOuter,
     'sort.block'=>$sortOuter,
+    'sort.direction'=>$directionOuter,
     'class'=>$class
 ];
 $output = $modx->parseText($ownerTpl,$data);
+$modx->setPlaceholder('sort_display',$currentDisplay);
+$modx->setPlaceholder('sort_field',$currentSortField);
+$modx->setPlaceholder('sort_order',$currentSortOrder);
 
 echo $output;

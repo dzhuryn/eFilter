@@ -119,8 +119,6 @@ public function __construct($modx, $params)
                 unset($newData['f'][$tvId]);
 
                 $tv_elements = $this->getDefaultTVValues([$tvId=>1]);
-//            var_dump($tv_elements);
-//            die();
 
                 $groupUnlink = $this->modx->makeUrl($this->modx->documentIdentifier).'?'. http_build_query($newData);
                 $this->modx->setPlaceholder('delete_group_'.$tvId,$groupUnlink);
