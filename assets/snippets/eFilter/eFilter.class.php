@@ -215,7 +215,7 @@ public function getParamTvName($tv_id = '')
     return $this->modx->db->getValue("SELECT `name` FROM " . $this->modx->getFullTableName('site_tmplvars') . " WHERE id = {$tv_id} LIMIT 0,1");
 }
 
-private function _isMTVParamEmpty($value) {
+private function _isMTVParamNotEmpty($value) {
     if (!empty($value['fieldValue'])) {
         $count = count($value['fieldValue']);
 
@@ -245,7 +245,7 @@ public function _getParentParam($docid, $param_tv_name) {
 
     $json = json_decode($value, true);
 
-    if ($this->_isMTVParamEmpty($json)) {
+    if ($this->_isMTVParamNotEmpty($json)) {
         return $json;
     }
 
