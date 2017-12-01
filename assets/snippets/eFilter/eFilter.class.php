@@ -215,66 +215,47 @@ public function getParamTvName($tv_id = '')
     return $this->modx->db->getValue("SELECT `name` FROM " . $this->modx->getFullTableName('site_tmplvars') . " WHERE id = {$tv_id} LIMIT 0,1");
 }
 
-public function getFilterParam ($param_tv_name)
-{
-    $filter_param = array();
-    $tv_config = isset ($this->params['tv_config']) ? $this->params['tv_config'] : '';
-    if ($tv_config != '') {
-        $filter_param = json_decode($tv_config, true);
-    } else {
-        $param_tv_val = $this->modx->runSnippet("DocInfo", array('docid'=>$this->docid, 'tv'=>'1', 'field'=>$param_tv_name));
-        if ($param_tv_val != '' && $param_tv_val != '[]' && $param_tv_val != '{"fieldValue":[{"param_id":""}],"fieldSettings":{"autoincrement":1}}') {//если задано для категории, ее и берем
-            $filter_param = json_decode($param_tv_val, true);
-        } else {//если не задано, идем к родителю
-            $filter_param = $this->_getParentParam ($this->docid, $param_tv_name);
-            /*$parent = $this->modx->db->getValue("SELECT parent FROM " . $this->modx->getFullTableName('site_content') . " WHERE id = {$this->docid} AND parent != 0 LIMIT 0,1");
-            if ($parent) {
-                $param_tv_val = $this->modx->runSnippet("DocInfo", array('docid'=>$parent, 'tv'=>'1', 'field'=>$param_tv_name));
-                if ($param_tv_val != '' && $param_tv_val != '{"fieldValue":[{"param_id":""}],"fieldSettings":{"autoincrement":1}}') {
-                    $filter_param = json_decode($param_tv_val, true);
-                } else {//если и у родителя нет, идет к дедушке
-                    $parent2 = $this->modx->db->getValue("SELECT parent FROM " . $this->modx->getFullTableName('site_content') . " WHERE id = {$parent} AND parent != 0 LIMIT 0,1");
-                    if ($parent2) {
-                        $param_tv_val = $this->modx->runSnippet("DocInfo", array('docid'=>$parent2, 'tv'=>'1', 'field'=>$param_tv_name));
-                        if ($param_tv_val != '' && $param_tv_val != '{"fieldValue":[{"param_id":""}],"fieldSettings":{"autoincrement":1}}') {
-                            $filter_param = json_decode($param_tv_val, true);
-                        }  else {//если и у дедушки нет, идет к прадедушке
-                            $parent3 = $this->modx->db->getValue("SELECT parent FROM " . $this->modx->getFullTableName('site_content') . " WHERE id = {$parent2} AND parent != 0 LIMIT 0,1");
-                            if ($parent3) {
-                                $param_tv_val = $this->modx->runSnippet("DocInfo", array('docid'=>$parent3, 'tv'=>'1', 'field'=>$param_tv_name));
-                                if ($param_tv_val != '' && $param_tv_val != '{"fieldValue":[{"param_id":""}],"fieldSettings":{"autoincrement":1}}') {
-                                    $filter_param = json_decode($param_tv_val, true);
-                                } else {//если и у прадедушки нет, идет к прапрадедушке
-                                    $parent4 = $this->modx->db->getValue("SELECT parent FROM " . $this->modx->getFullTableName('site_content') . " WHERE id = {$parent3} AND parent != 0 LIMIT 0,1");
-                                    if ($parent4) {
-                                        $param_tv_val = $this->modx->runSnippet("DocInfo", array('docid'=>$parent4, 'tv'=>'1', 'field'=>$param_tv_name));
-                                        if ($param_tv_val != '' && $param_tv_val != '{"fieldValue":[{"param_id":""}],"fieldSettings":{"autoincrement":1}}') {
-                                            $filter_param = json_decode($param_tv_val, true);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }*/
+private function _isMTVParamNotEmpty($value) {
+    if (!empty($value['fieldValue'])) {
+        $count = count($value['fieldValue']);
+
+        if ($count > 1 || $count == 1 && !empty($value['fieldValue'][0]['param_id'])) {
+            return true;
         }
     }
-    return $filter_param;
+
+    return false;
 }
 
-public function _getParentParam ($docid, $param_tv_name) {
-    $filter_param = array();
-    $parent = $this->modx->db->getValue("SELECT parent FROM " . $this->modx->getFullTableName('site_content') . " WHERE id = {$docid} AND parent != 0 LIMIT 0,1");
-    if ($parent) {
-        $param_tv_val = $this->modx->runSnippet("DocInfo", array('docid' => $parent, 'tv' => '1', 'field' => $param_tv_name));
-        if ($param_tv_val != '' && $param_tv_val != '{"fieldValue":[{"param_id":""}],"fieldSettings":{"autoincrement":1}}' && $param_tv_val != '[]') {
-            $filter_param = json_decode($param_tv_val, true);
-        }  else {
-            $filter_param = $this->_getParentParam ($parent, $param_tv_name);
-        }
+public function getFilterParam($param_tv_name)
+{
+    if (!empty($this->params['tv_config'])) {
+        return json_decode($this->params['tv_config'], true);
     }
-    return $filter_param;
+
+    return $this->_getParentParam($this->docid, $param_tv_name);
+}
+
+public function _getParentParam($docid, $param_tv_name) {
+    $value = $this->modx->runSnippet('DocInfo', [
+        'docid' => $docid,
+        'tv'    => 1,
+        'field' => $param_tv_name,
+    ]);
+
+    $json = json_decode($value, true);
+
+    if ($this->_isMTVParamNotEmpty($json)) {
+        return $json;
+    }
+
+    $parent = $this->modx->db->getValue("SELECT parent FROM " . $this->modx->getFullTableName('site_content') . " WHERE id = {$docid} AND parent != 0 LIMIT 0,1");
+
+    if ($parent) {
+        return $this->_getParentParam($parent, $param_tv_name);
+    }
+
+    return [];
 }
 
 public function makeFilterArrays()
